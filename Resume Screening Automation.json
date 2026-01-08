@@ -1,0 +1,423 @@
+{
+  "name": "Resume Screening Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "d0adc5a9-3e5c-4f09-976a-85e806a2d5b3",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -224,
+        208
+      ],
+      "id": "e1056834-1ce3-4ef8-8059-50cfa4093353",
+      "name": "Webhook",
+      "webhookId": "d0adc5a9-3e5c-4f09-976a-85e806a2d5b3"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        400,
+        256
+      ],
+      "id": "a4e6cd49-0898-4131-9e78-b82ffb437583",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "f408b8a1-d8da-4394-9bbf-3e0dabf7fc1b",
+              "leftValue": "={{ $json.skill_match_score }}",
+              "rightValue": 75,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1232,
+        256
+      ],
+      "id": "870386ef-a116-471f-a966-0ce1c937357f",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "14CYkrpX0Fbvsn4-LkkVIzg6C841UeQ86aSln9hkkaQg",
+          "mode": "list",
+          "cachedResultName": "Resume spreadsheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14CYkrpX0Fbvsn4-LkkVIzg6C841UeQ86aSln9hkkaQg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14CYkrpX0Fbvsn4-LkkVIzg6C841UeQ86aSln9hkkaQg/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email": "={{ $('Webhook').item.json.body.Email }}",
+            "Match Score": "={{ $('Compare and Evaluate Score').item.json.skill_match_score }}",
+            "Skill ": "={{ $('Compare and Evaluate Score').item.json.matched_skills }}",
+            "Status ": "{{$json.status}}",
+            "Time Stamp": "={{new Date().toISOString()}}"
+          },
+          "matchingColumns": [
+            "Email"
+          ],
+          "schema": [
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Match Score",
+              "displayName": "Match Score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Skill ",
+              "displayName": "Skill ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Status ",
+              "displayName": "Status ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Time Stamp",
+              "displayName": "Time Stamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1664,
+        240
+      ],
+      "id": "b35ee98e-5fb2-4cd3-8efd-8f84c305e25c",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Flop3nnUDKlsx8vg",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Assuming the input data is available as 'items' in n8n (common in Function nodes)\n// This code extracts 'text' and 'jd', removes specified characters (\\n, #, |, .), converts to lowercase, and returns them.\n\nconst input = items[0].json; // Adjust based on your n8n setup if needed\n\n// Function to clean and lowercase the string\nfunction cleanAndLowercase(str) {\n  // Remove \\n, #, |, and .\n  return str.replace(/[\\n#|\\.]/g, '').toLowerCase();\n}\n\nreturn {\n  text: cleanAndLowercase(input.text),\n  jd: cleanAndLowercase(input.jd)\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        608,
+        256
+      ],
+      "id": "cce95de9-ad21-4de8-a4d0-be6d1b061745",
+      "name": "Return jd and Resume in Lower Case"
+    },
+    {
+      "parameters": {
+        "jsCode": "const skillDB = [\n  \"python\",\n  \"java\",\n  \"sql\",\n  \"machine learning\",\n  \"deep learning\",\n  \"computer vision\",\n  \"opencv\",\n  \"tensorflow\",\n  \"pytorch\",\n  \"aws\",\n  \"git\",\n  \"html\",\n  \"css\",\n  \"javascript\",\n];\n\nconst items = $input.all();\n\n// Function to clean the string: remove \\n, #, |, ., and convert to lowercase\nfunction cleanAndLowercase(str) {\n  return str.replace(/[\\n#|\\.]/g, '').toLowerCase();\n}\n\n// Assuming the input has 'text' and 'jd' as per previous context; adjust if it's 'resume'\nconst resume = cleanAndLowercase(items[0]?.json?.text || items[0]?.json?.resume || '');\nconst jd = cleanAndLowercase(items[0]?.json?.jd || '');\n\nconst resumeSkills = skillDB.filter((skill) => resume.includes(skill));\nconst jdSkills = skillDB.filter((skill) => jd.includes(skill));\n\n// Further enhancements: Calculate matching skills and a simple similarity score\nconst matchingSkills = resumeSkills.filter(skill => jdSkills.includes(skill));\nconst similarityScore = matchingSkills.length / Math.max(resumeSkills.length, jdSkills.length) * 100; // Percentage based on resume skills\n\nreturn [{ json: { \n  resume_skills: resumeSkills, \n  jd_skills: jdSkills, \n  matching_skills: matchingSkills, \n  similarity_score: similarityScore.toFixed(2) + '%' \n} }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        816,
+        256
+      ],
+      "id": "822526d5-cde9-4205-983d-84b87b8ae193",
+      "name": "Extract Jd Skills and Resume Skills"
+    },
+    {
+      "parameters": {
+        "jsCode": "// n8n Function Node Code\n// Enhanced version: This code assumes the input data is an array of items, where each item has 'resume_skills' and 'jd_skills' in its JSON.\n// It calculates matched skills, score, and additional metrics like exact/fuzzy matches and unmatched skills.\n// Score is now rounded to the nearest integer without '%' symbol.\n\nreturn items.map(item => {\n  const resumeSkills = item.json.resume_skills || [];\n  const jdSkills = item.json.jd_skills || [];\n  \n  // Function to calculate skill match with enhancements\n  function calculateSkillMatch(resume, jd) {\n    // Convert to lowercase for case-insensitive comparison\n    const resumeLower = resume.map(skill => skill.toLowerCase());\n    const jdLower = jd.map(skill => skill.toLowerCase());\n    \n    // Exact matches (return original case from JD for output)\n    const exactMatches = jd.filter(skill => resumeLower.includes(skill.toLowerCase()));\n    \n    // Fuzzy matches: Check for partial substring matches (e.g., \"machine learning\" contains \"machine\")\n    // This is a simple implementation; for better fuzzy matching, consider libraries like Fuse.js in a full Node.js env\n    const fuzzyMatches = jd.filter(skill => {\n      const skillLower = skill.toLowerCase();\n      return !exactMatches.some(match => match.toLowerCase() === skillLower) && // Avoid duplicates\n             resumeLower.some(resumeSkill => resumeSkill.includes(skillLower) || skillLower.includes(resumeSkill));\n    });\n    \n    // All matched skills (exact + fuzzy)\n    const allMatchedSkills = [...exactMatches, ...fuzzyMatches];\n    \n    // Unmatched skills in JD\n    const unmatchedJdSkills = jd.filter(skill => !allMatchedSkills.includes(skill));\n    \n    // Unmatched skills in resume\n    const unmatchedResumeSkills = resume.filter(skill => !allMatchedSkills.some(match => match.toLowerCase() === skill.toLowerCase()));\n    \n    // Calculate scores\n    const totalScore = jd.length > 0 ? (allMatchedSkills.length / jd.length) * 100 : 0;\n    \n    return { \n      exactMatches, \n      fuzzyMatches, \n      allMatchedSkills, \n      unmatchedJdSkills, \n      unmatchedResumeSkills, \n      totalScore\n    };\n  }\n  \n  // Calculate the match\n  const matchResult = calculateSkillMatch(resumeSkills, jdSkills);\n  \n  // Return enhanced output (score rounded to nearest integer, no '%')\n  return {\n    json: {\n      matched_skills: matchResult.allMatchedSkills,\n      \n      skill_match_score: Math.round(matchResult.totalScore)\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1024,
+        256
+      ],
+      "id": "19722e98-6bd5-443d-9bd1-84be48b66b9d",
+      "name": "Compare and Evaluate Score"
+    },
+    {
+      "parameters": {
+        "sendTo": "barathk091002@gmail.com",
+        "subject": "Resume Response",
+        "message": "Congratulations! Your profile matched our requirements.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1440,
+        160
+      ],
+      "id": "43c979f5-2c55-4ca1-972a-12cb588a08bc",
+      "name": "Send a Shortlisted Mail",
+      "webhookId": "eaed8559-f1a4-43a6-b189-83b41bf4d710",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ym4hbJj2meLFkzS1",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "Resume",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        144,
+        160
+      ],
+      "id": "ebb20384-9164-4ec1-b083-ba43a9c71686",
+      "name": "Extract Resume"
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "binaryPropertyName": "Job Description",
+        "destinationKey": "jd",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        128,
+        384
+      ],
+      "id": "036630d5-78c1-44cf-b8d2-3155d9b25afa",
+      "name": "Extract JD"
+    },
+    {
+      "parameters": {
+        "sendTo": "barathk091002@gmail.com",
+        "subject": "Resume Response",
+        "message": "Thank you for applying. We will keep your profile for future roles.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1440,
+        352
+      ],
+      "id": "cc92c7dd-197f-4130-855b-ce827b7739e2",
+      "name": "Sent Rejection Mail",
+      "webhookId": "474fe384-857d-4f6a-8377-eab623fdbb4a",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ym4hbJj2meLFkzS1",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Return jd and Resume in Lower Case",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a Shortlisted Mail",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Sent Rejection Mail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Extract Resume",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Extract JD",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Return jd and Resume in Lower Case": {
+      "main": [
+        [
+          {
+            "node": "Extract Jd Skills and Resume Skills",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Jd Skills and Resume Skills": {
+      "main": [
+        [
+          {
+            "node": "Compare and Evaluate Score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compare and Evaluate Score": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a Shortlisted Mail": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Resume": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract JD": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Sent Rejection Mail": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "fc1ef5b1-3a80-4ab3-9f90-ae6fc09d9e93",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "090f64457de0806aac32e9ed9657224ac954964e2bdc717d84bb844497d88537"
+  },
+  "id": "Cw9Mxf7CJJugHkdIdtGg2",
+  "tags": []
+}
